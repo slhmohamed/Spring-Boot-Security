@@ -40,6 +40,7 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
             {
                 e.printStackTrace();
                 System.out.println(("jwt token has expired"));
+
             }catch (Exception e)
             {
                 e.printStackTrace();

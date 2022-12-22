@@ -33,15 +33,13 @@ import com.secutity.Security.payload.response.JwtResponse;
 @RequiredArgsConstructor
 public class AuthenticateController {
     private final AuthenticationManager authenticationManager;
-    private final UserDetailsServiceImpl userDetailsService;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
     private final JwtUtils jwtUtils;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) throws Exception {
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest)   {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
@@ -84,18 +82,17 @@ public class AuthenticateController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws Exception {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest)  {
             Authentication authentication =   authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        String token=jwtUtils.generateToken(userDetails);
-        List<String> roles = userDetails.getAuthorities().stream()
+        String token=jwtUtils.generateToken((UserDetailsImpl) authentication.getPrincipal());
+        List<String> roles = ((UserDetailsImpl) authentication.getPrincipal()).getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new JwtResponse(token,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
+                ((UserDetailsImpl) authentication.getPrincipal()).getId(),
+                ((UserDetailsImpl) authentication.getPrincipal()).getUsername(),
+                ((UserDetailsImpl) authentication.getPrincipal()).getEmail(),
                 roles));
     }
 
